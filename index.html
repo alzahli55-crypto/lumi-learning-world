@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عالم لومي التعليمي</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Tahoma, Arial, sans-serif;
+  background: #fffaf0;
+  color: #39465c;
+  text-align: center;
+}
+header {
+  background: #d9f2ed;
+  padding: 22px 12px;
+}
+.logo { font-size: 27px; font-weight: bold; color: #278b85; }
+.mascot {
+  width: 125px;
+  height: 125px;
+  margin: 20px auto 10px;
+  border-radius: 50%;
+  background: #ffdf73;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 75px;
+  box-shadow: 0 7px 0 #edc65d;
+}
+h1 { color: #278b85; }
+p { line-height: 1.9; }
+button {
+  border: 0;
+  border-radius: 18px;
+  padding: 14px 22px;
+  margin: 7px;
+  font-size: 19px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #f5c95f;
+  color: #4d4938;
+}
+button:hover { transform: scale(1.04); }
+.main { padding: 20px 12px; }
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  max-width: 540px;
+  margin: 18px auto;
+  box-shadow: 0 4px 18px #00000010;
+}
+.choices button {
+  background: #d9f2ed;
+  min-width: 85px;
+  font-size: 28px;
+}
+#message { font-size: 21px; font-weight: bold; min-height: 45px; }
+#question { font-size: 25px; }
+footer { padding: 22px; color: #718078; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🌈 عالم لومي التعليمي</div>
+  <div>نتعلم ونلعب ونكتشف معًا</div>
+</header>
+
+<div class="main">
+  <div class="mascot">😊</div>
+  <h1>مرحبًا يا أصدقائي!</h1>
+  <p>أنا لومي، صديقكم الصغير ✨<br>
+  هيا نلعب ونتعلم الحروف العربية!</p>
+
+  <div class="card">
+    <h2>⭐ لعبة الحروف</h2>
+    <p id="question">اضغط على ابدأ اللعب لنبدأ رحلتنا!</p>
+    <button onclick="startGame()">ابدأ اللعب 🎮</button>
+    <div class="choices" id="choices"></div>
+    <div id="message"></div>
+    <p>نجومي: ⭐ <span id="stars">0</span></p>
+    <button onclick="speakQuestion()">🔊 استمع للسؤال</button>
+  </div>
+</div>
+
+<footer>مدرسة ألوان الطيف الخاصة 💛</footer>
+
+<script>
+const questions = [
+ {letter:"أ", word:"أسد", emoji:"🦁", choices:["أ","ب","ت"]},
+ {letter:"ب", word:"بطة", emoji:"🦆", choices:["ج","ب","ث"]},
+ {letter:"ت", word:"تفاحة", emoji:"🍎", choices:["ت","أ","د"]},
+ {letter:"م", word:"موز", emoji:"🍌", choices:["ن","م","ل"]}
+];
+
+let current = 0;
+let stars = 0;
+let answered = false;
+
+function say(text) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const voice = new SpeechSynthesisUtterance(text);
+  voice.lang = "ar";
+  voice.rate = 0.85;
+  speechSynthesis.speak(voice);
+}
+
+function startGame() {
+  current = 0;
+  stars = 0;
+  document.getElementById("stars").textContent = stars;
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) {
+    document.getElementById("question").textContent =
+      "أحسنت يا بطل! أنهيت اللعبة 🎉";
+    document.getElementById("choices").innerHTML = "";
+    document.getElementById("message").textContent =
+      "جمعت " + stars + " نجوم ⭐";
+    say("أحسنت! أنت بطل رائع!");
+    return;
+  }
+
+  answered = false;
+  const q = questions[current];
+  document.getElementById("question").textContent =
+    "أين حرف " + q.letter + "؟ " + q.emoji + " " + q.word;
+
+  document.getElementById("message").textContent = "";
+  document.getElementById("choices").innerHTML = "";
+
+  q.choices.forEach(letter => {
+    const btn = document.createElement("button");
+    btn.textContent = letter;
+    btn.onclick = () => checkAnswer(letter);
+    document.getElementById("choices").appendChild(btn);
+  });
+
+  say("أين حرف " + q.letter + "؟");
+}
+
+function checkAnswer(letter) {
+  if (answered) return;
+  if (letter === questions[current].letter) {
+    answered = true;
+    stars++;
+    document.getElementById("stars").textContent = stars;
+    document.getElementById("message").textContent =
+      "أحسنت! إجابة صحيحة ⭐";
+    say("رائع! أحسنت يا صديقي!");
+    current++;
+    setTimeout(showQuestion, 1600);
+  } else {
+    document.getElementById("message").textContent =
+      "حاول مرة أخرى يا بطل 💛";
+    say("حاول مرة أخرى، أنت تستطيع!");
+  }
+}
+
+function speakQuestion() {
+  if (current < questions.length) {
+    const q = questions[current];
+    say("أين حرف " + q.letter + "؟ " + q.word);
+  }
+}
+</script>
+
+</body>
+</html>
